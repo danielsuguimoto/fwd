@@ -19,4 +19,11 @@ class NodeQaTest extends TestCase
 
         $this->assertDockerRun('fireworkweb/node:qa eslint');
     }
+
+    public function testNodeQaDefaultArgs()
+    {
+        $this->artisan('node-qa')->assertExitCode(0);
+
+        $this->assertDockerRun('fireworkweb/node:qa node -v');
+    }
 }

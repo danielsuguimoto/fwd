@@ -140,4 +140,117 @@ class InstallTest extends TestCase
             ->expectsOutput('File ".fwd" copied.')
             ->expectsOutput('File "docker-compose.yml" copied.');
     }
+
+    public function testValidDockerComposeFileVersions()
+    {
+        File::shouldReceive('exists')
+            ->andReturn(false);
+
+        File::shouldReceive('copy')
+            ->andReturn(true);
+
+        File::shouldReceive('get')
+            ->andReturn("var1\nvar2");
+
+        File::shouldReceive('put')
+            ->andReturn(100);
+
+        $this->artisan('install --docker-compose-version=3.7')
+            ->expectsOutput('File ".fwd" copied.')
+            ->expectsOutput('File "docker-compose.yml" copied.');
+
+        $this->assertCommandCalled('install --docker-compose-version=3.7');
+
+        $this->artisan('install --docker-compose-version=2')
+            ->expectsOutput('File ".fwd" copied.')
+            ->expectsOutput('File "docker-compose.yml" copied.');
+
+        $this->assertCommandCalled('install --docker-compose-version=2');
+    }
+
+    public function testDeprecatedDockerComposeFileVersion()
+    {
+        File::shouldReceive('exists')
+            ->andReturn(false);
+
+        File::shouldReceive('copy')
+            ->andReturn(true);
+
+        File::shouldReceive('get')
+            ->andReturn("var1\nvar2");
+
+        File::shouldReceive('put')
+            ->andReturn(100);
+
+        $this->artisan('install --docker-compose-version=2')
+            ->expectsOutput('Deprecated: not using the latest docker-compose-version=3.7 is deprecated and soon will lose support.')
+            ->expectsOutput('File ".fwd" copied.')
+            ->expectsOutput('File "docker-compose.yml" copied.');
+
+        $this->assertCommandCalled('install --docker-compose-version=2');
+    }
+
+    public function testInvalidDockerComposeFileVersion()
+    {
+        $this->expectExceptionMessage('docker-compose-version must be either 2 or 3.7');
+
+        File::shouldReceive('exists')
+            ->andReturn(false);
+
+        File::shouldReceive('copy')
+            ->andReturn(true);
+
+        File::shouldReceive('get')
+            ->andReturn("var1\nvar2");
+
+        File::shouldReceive('put')
+            ->andReturn(100);
+
+        $this->artisan('install --docker-compose-version=1')
+            ->expectsOutput('Bad docker-compose-version option; valid values are either 2 or 3.7');
+
+        $this->assertCommandCalled('install --docker-compose-version=1');
+    }
+
+    public function testFailToWriteFwdFile()
+    {
+        File::shouldReceive('exists')
+            ->andReturn(false);
+
+        File::shouldReceive('copy')
+            ->andReturn(true);
+
+        File::shouldReceive('get')
+            ->andReturn("var1\nvar2");
+
+        File::shouldReceive('put')
+            ->andReturn(false);
+
+        $this->artisan('install')
+            ->expectsOutput('Failed to write local ".fwd" file.')
+            ->assertExitCode(1);
+
+        $this->assertCommandCalled('install');
+    }
+
+    public function testFailToWriteDockerComposeFile()
+    {
+        File::shouldReceive('exists')
+            ->andReturn(false);
+
+        File::shouldReceive('copy')
+            ->andReturn(false);
+
+        File::shouldReceive('get')
+            ->andReturn("var1\nvar2");
+
+        File::shouldReceive('put')
+            ->andReturn(100);
+
+        $this->artisan('install')
+            ->expectsOutput('Failed to write local "docker-compose.yml" file.')
+            ->assertExitCode(1);
+
+        $this->assertCommandCalled('install');
+    }
 }
