@@ -31,7 +31,7 @@ class TemplateTest extends TestCase
             ->with($path)
             ->andReturn(true);
 
-            File::shouldReceive('deleteDirectory')
+        File::shouldReceive('deleteDirectory')
             ->once()
             ->with($path)
             ->andReturn(true);
