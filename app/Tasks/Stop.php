@@ -29,11 +29,11 @@ class Stop extends Task
     }
 
     public function services(string $services): self
-     {
-         $this->services = $services;
+    {
+        $this->services = $services;
 
-         return $this;
-     }
+        return $this;
+    }
 
     public function destroyContainers(): int
     {
